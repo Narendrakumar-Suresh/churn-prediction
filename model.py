@@ -27,9 +27,9 @@ y=df['Churn'].values
 X = torch.tensor(X, dtype=torch.float32)
 y = torch.tensor(y, dtype=torch.float32)
 
-batch_size=100
+batch_size=50
 learning_rate=0.01
-num_epochs=2
+num_epochs=100
 dataset = Churnpredict(X, y)
 
 train_size = int(0.8 * len(dataset))
@@ -53,6 +53,7 @@ class NeuralNet(nn.Module):
         self.l3=nn.Linear(hidden_size,hidden_size)
         self.relu3=nn.ReLU()
         self.l4=nn.Linear(hidden_size,num_classes)
+        self.sigmoid=nn.Sigmoid()
     
     def forward(self,x):
         out=self.l1(x)
@@ -62,17 +63,19 @@ class NeuralNet(nn.Module):
         out=self.l3(out)
         out=self.relu3(out)
         out=self.l4(out)
+        out=self.sigmoid(out)
 
         return out
 
 input_size=5
-hidden_size = 100
+hidden_size = 50
 num_classes=1
 
 model=NeuralNet(input_size=input_size,hidden_size=hidden_size,num_classes=num_classes)
+model = model.to(device)
 
-criterion=nn.CrossEntropyLoss()
-optimiser=torch.optim.Adam(model.parameters(),lr=learning_rate)
+criterion=nn.BCELoss()
+optimiser=torch.optim.SGD(model.parameters(),lr=learning_rate)
 
 n_total_steps = len(train_loader)
 
